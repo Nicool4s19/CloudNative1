@@ -36,9 +36,41 @@ public class Incidencias {
     public void prePersist() {
         this.fecha_cracion = LocalDateTime.now();
 
-        if (this.fecha_cracion == null || this.estado.isBlank()) {
-            this.estado = "Pendiente";
+        if (this.estado == null || this.estado.isBlank()) {
+            this.estado = "ABIERTA";
+        } else {
+            this.estado = this.estado.toUpperCase();
         }
+
+        if (this.prioridad == null || this.prioridad.isBlank()) {
+            this.prioridad = "MEDIA";
+        } else {
+            this.prioridad = this.prioridad.toUpperCase();
+        }
+
+        validarCampos();
+    }
+
+    public void validarCampos() {
+        if (this.estado != null) {
+            String est = this.estado.toUpperCase();
+            if (!est.equals("ABIERTA") && !est.equals("EN_PROGRESO") && !est.equals("RESUELTA")) {
+                throw new IllegalArgumentException("Estado no valido. Debe ser ABIERTA, EN_PROGRESO o RESUELTA.");
+            }
+            this.estado = est;
+        }
+        if (this.prioridad != null) {
+            String prio = this.prioridad.toUpperCase();
+            if (!prio.equals("BAJA") && !prio.equals("MEDIA") && !prio.equals("ALTA")) {
+                throw new IllegalArgumentException("Prioridad no valida. Debe ser BAJA, MEDIA o ALTA.");
+            }
+            this.prioridad = prio;
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        validarCampos();
     }
 
     public Long getId() {

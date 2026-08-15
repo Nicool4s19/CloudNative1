@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/incidencias")
@@ -19,16 +20,24 @@ public class IncidenciaController {
         this.incidenciaService = incidenciaService;
     }
 
-    //Listar Todas
+    //Listar Todas con filtros
     @GetMapping
-    public List<Incidencias> ObtenerIncidencias() {
-        return incidenciaService.obtnerTodas();
+    public List<Incidencias> ObtenerIncidencias(
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) String prioridad,
+            @RequestParam(required = false) String search) {
+        return incidenciaService.buscar(estado, prioridad, search);
+    }
+
+    //Obtener estadísticas
+    @GetMapping("/stats")
+    public Map<String, Long> obtenerEstadisticas() {
+        return incidenciaService.obtenerEstadisticas();
     }
 
     //Buscar por ID
     @GetMapping("/{id}")
     public ResponseEntity<Incidencias> ObtenerIncidencia(@PathVariable Long id) {
-
         return incidenciaService.obtenerPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -49,12 +58,19 @@ public class IncidenciaController {
         return incidenciaService.actualizar(id, incidencias);
     }
 
+    // Cambio rápido de estado
+    @PatchMapping("/{id}/estado")
+    public Incidencias cambiarEstado(
+            @PathVariable Long id,
+            @RequestParam String nuevoEstado) {
+        return incidenciaService.cambiarEstado(id, nuevoEstado);
+    }
+
     //Eliminar
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         incidenciaService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
-
 
 }
