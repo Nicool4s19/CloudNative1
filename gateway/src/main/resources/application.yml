@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      # =========================================================================
+      # CONFIGURACIÓN DE RUTAS (Partes A, B, C y D)
+      # =========================================================================
+      routes:
+        # Ruta API v1
+        - id: posts-v1-route
+          uri: https://jsonplaceholder.typicode.com
+          predicates:
+            - Path=/api/v1/**
+          filters:
+            - RewritePath=/api/v1/(?<segment>.*), /${segment}
+            - AddRequestHeader=X-Gateway-Lab, Grupo-03
+            - AddRequestHeader=X-API-Version, v1
+            - AddResponseHeader=X-Response-Source, Spring-Cloud-Gateway
+
+        # Ruta API v2
+        - id: posts-v2-route
+          uri: https://jsonplaceholder.typicode.com
+          predicates:
+            - Path=/api/v2/**
+          filters:
+            - RewritePath=/api/v2/(?<segment>.*), /${segment}
+            - AddRequestHeader=X-Gateway-Lab, Grupo-03
+            - AddRequestHeader=X-API-Version, v2
+            - AddResponseHeader=X-Response-Source, Spring-Cloud-Gateway
+
+      # =========================================================================
+      # CONFIGURACIÓN GLOBAL DE CORS (Parte E)
+      # =========================================================================
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins:
+              - "http://localhost:5500"
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowed-headers:
+              - "*"
+            allow-credentials: false
+            max-age: 3600
