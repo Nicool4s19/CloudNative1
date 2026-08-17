@@ -1,0 +1,25 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      default-filters:
+        - AddResponseHeader=X-Gateway-Lab, DSY1107
+      routes:
+        - id: posts-v1
+          uri: https://jsonplaceholder.typicode.com
+          predicates:
+            - Path=/api/v1/posts/**
+          filters:
+            - RewritePath=/api/v1/posts/(?<segment>.*), /posts/$\{segment}
+            - AddResponseHeader=X-API-Version, v1
+        - id: posts-v2
+          uri: https://jsonplaceholder.typicode.com
+          predicates:
+            - Path=/api/v2/posts/**
+          filters:
+            - RewritePath=/api/v2/posts/(?<segment>.*), /posts/$\{segment}
+            - AddResponseHeader=X-API-Version, v2
